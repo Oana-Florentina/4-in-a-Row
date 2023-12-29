@@ -249,7 +249,41 @@ def main():
     game_two_players(screen, board)
 
 
+def get_valid_locations(board):
+    valid_locations = []
+    for col in range(COLS):
+        if is_valid_location(board, col):
+            valid_locations.append(col)
+    return valid_locations
 
 
+def evaluate_terminal(board):
+    if Game_over(board, AI_PLAYER_PIECE):
+        return 100000000000000
+    elif Game_over(board, PLAYER_ONE_PIECE):
+        return -10000000000000
+    else:
+        return 0
+
+def minimax(board, depth, maximizingplayer):
+    valid_locations = get_valid_locations(board)
+    if depth == 0 or Game_over(board, AI_PLAYER_PIECE) or Game_over(board, PLAYER_ONE_PIECE):
+        return evaluate_terminal(board)
+    if maximizingplayer:
+        value = MINUSINF
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            b_copy = board.copy()
+            add_piece(b_copy, row, col, AI_PLAYER_PIECE)
+            value = max(value, minimax(b_copy, depth - 1, False))
+        return value
+    else:
+        value = PLUSINF
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            b_copy = board.copy()
+            add_piece(b_copy, row, col, PLAYER_ONE_PIECE)
+            value = min(value, minimax(b_copy, depth - 1, True))
+        return value
 if __name__ == '__main__':
     main()
