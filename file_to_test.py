@@ -388,9 +388,20 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
         return column, value
 
 
-def game_vs_AI(screen, board):
+def game_vs_AI(screen, board, difficulty, first_player):
     depth = 5
     turn = AI_PLAYER
+    if difficulty == "easy":
+        depth = 0
+    elif difficulty == "medium":
+        depth = 2
+    elif difficulty == "hard":
+        depth = 5
+    if first_player == "human":
+        turn = PLAYER_ONE
+    else:
+        turn = AI_PLAYER
+
     game_over = Game_over(board, PLAYER_ONE_PIECE)
     draw_board(screen, board)
 
