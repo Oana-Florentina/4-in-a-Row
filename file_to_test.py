@@ -10,8 +10,15 @@ import sys
 
 global ROWS
 global COLS
-ROWS=7
-COLS=6
+try:
+    opponent = sys.argv[1]
+    ROWS = int(sys.argv[2])
+    COLS = int(sys.argv[3])
+    print(ROWS)
+    print(COLS)
+except ValueError:
+    print("Rows and columns must be integers.")
+    sys.exit(1)
 PLUSINF = math.inf
 MINUSINF = -math.inf
 # Colors
@@ -84,6 +91,7 @@ def is_tie(board):
         if board[ROWS - 1][col] == 0:
             return False
     return True
+
 
 # Game GUI functions
 
