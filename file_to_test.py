@@ -85,3 +85,46 @@ def is_tie(board):
             return False
     return True
 
+# Game GUI functions
+
+def board_setup():
+    pygame.init()
+    pygame.display.set_caption('Connect 4')
+    screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
+    return screen
+
+
+def draw_board(screen, board):
+    height = (ROWS + 1) * Piece_size
+    for col in range(COLS):
+        for row in range(ROWS):
+            x = col * Piece_size
+            y = (ROWS - row - 1) * Piece_size + Piece_size
+            pygame.draw.rect(screen, BLUE, (x, y, Piece_size, Piece_size))
+            circle_x = x + int(Piece_size / 2)
+            circle_y = y + int(Piece_size / 2)
+            pygame.draw.circle(screen, BLACK, (circle_x, circle_y), RADIUS)
+
+            piece = board[row][col]
+            if piece == PLAYER_ONE_PIECE:
+                piece_color = RED
+            elif piece == PLAYER_TWO_PIECE:
+                piece_color = YELLOW
+            else:
+                continue
+
+            pygame.draw.circle(screen, piece_color, (circle_x, circle_y), RADIUS - 5)  # Smaller circle
+    pygame.display.update()
+
+
+def draw_hover_piece(screen, col, turn):
+    mouse_x = col * Piece_size + int(Piece_size / 2)
+
+    pygame.draw.rect(screen, BLACK, (0, 0, COLS * Piece_size, Piece_size))
+
+    if turn == PLAYER_ONE:
+        pygame.draw.circle(screen, RED, (mouse_x, int(Piece_size / 2)), RADIUS)
+    elif turn == PLAYER_TWO:
+        pygame.draw.circle(screen, YELLOW, (mouse_x, int(Piece_size / 2)), RADIUS)
+
+
