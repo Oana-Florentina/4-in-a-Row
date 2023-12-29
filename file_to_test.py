@@ -387,6 +387,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 
         return column, value
 
+
 def game_vs_AI(screen, board):
     depth = 5
     turn = AI_PLAYER
@@ -457,6 +458,9 @@ def game_vs_AI(screen, board):
     pygame.quit()
 
 
+
+
+
 def main():
 
 
@@ -465,8 +469,11 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
     pygame.display.set_caption('Connect 4')
-  #  game_two_players(screen, board)
-    game_vs_AI(screen, board)
+    game_two_players(screen, board)
+
+
+    # game_vs_AI(screen, board)
+
 
 if __name__ == '__main__':
     main()
