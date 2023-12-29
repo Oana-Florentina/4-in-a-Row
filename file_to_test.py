@@ -387,6 +387,75 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 
         return column, value
 
+def game_vs_AI(screen, board):
+    depth = 5
+    turn = AI_PLAYER
+    game_over = Game_over(board, PLAYER_ONE_PIECE)
+    draw_board(screen, board)
+
+    while not game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit(0)
+
+            if event.type == pygame.MOUSEMOTION and turn == PLAYER_ONE:
+                col = int(event.pos[0] / Piece_size)
+                draw_hover_piece(screen, col, turn)
+                pygame.display.update()
+
+            if event.type == pygame.MOUSEBUTTONDOWN and turn == PLAYER_ONE:
+                col = int(event.pos[0] / Piece_size)
+
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    add_piece(board, row, col, PLAYER_ONE_PIECE)
+                    if Game_over(board, PLAYER_ONE_PIECE):
+                        print("PLAYER 1 WINS!")
+                        game_over = True
+                        break
+                    if is_tie(board):
+                        game_over = True
+                        print("TIE!")
+                        break
+
+
+                    turn = AI_PLAYER
+                    draw_board(screen, board)
+                    pygame.display.update()
+
+
+
+            if turn == AI_PLAYER:
+                col = minimax(board, depth, -math.inf, math.inf, True)[0]
+
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    pygame.time.wait(500)
+                    add_piece(board, row, col, AI_PLAYER_PIECE)
+                    if Game_over(board, AI_PLAYER_PIECE):
+                        print("PLAYER 2 WINS!")
+                        game_over = True
+                        break
+                    if is_tie(board):
+                        game_over = True
+                        print("tie!")
+                        break
+                    turn = PLAYER_ONE
+
+        draw_board(screen, board)
+        pygame.display.update()
+    if game_over:
+        if Game_over(board, PLAYER_ONE_PIECE):
+            display_message(screen, "PLAYER 1 WINS!")
+        elif Game_over(board, AI_PLAYER_PIECE):
+            display_message(screen, "PLAYER 2 WINS!")
+        elif is_tie(board):
+            display_message(screen, "IT'S TIE")
+
+    # after 2 seconds close the game
+    pygame.time.wait(2000)
+    pygame.quit()
+
 
 def main():
 
@@ -396,7 +465,8 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
     pygame.display.set_caption('Connect 4')
-    game_two_players(screen, board)
+  #  game_two_players(screen, board)
+    game_vs_AI(screen, board)
 
 if __name__ == '__main__':
     main()
