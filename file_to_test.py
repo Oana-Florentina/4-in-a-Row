@@ -238,16 +238,85 @@ def game_two_players(screen, board):
     pygame.time.wait(5000)
     pygame.quit()
 
-def main():
+
+# Main game functions player vs AI
+
+def evaluate_block(window, piece):
+    piece_count = np.count_nonzero(window == piece)
+    empty_count = np.count_nonzero(window == EMPTY)
+    score = 0
+    opp_piece = PLAYER_ONE_PIECE if piece == AI_PLAYER_PIECE else AI_PLAYER_PIECE
+
+    if piece_count == 4:
+        score += 100
+    elif piece_count == 3 and empty_count == 1:
+        score += 50
+    elif piece_count == 2 and empty_count == 2:
+        score += 10
 
 
-    initialize_rows_cols()
-    board = create_board()
-    pygame.init()
-    screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
-    pygame.display.set_caption('Connect 4')
-    game_two_players(screen, board)
+    opposite_count = np.count_nonzero(window == opp_piece)
+    if opposite_count == 3 and empty_count == 1:
+        score -= 50
 
+    return score
+
+
+def extract_windows(board):
+    windows = []
+    rows, cols = ROWS, COLS
+
+    # Horizontal windows
+    for r in range(rows):
+        for c in range(cols - 3):
+            window = board[r][c:c + 4]
+            windows.append(window)
+
+    # Vertical windows
+    for c in range(cols):
+        for r in range(rows - 3):
+            window = [board[r + i][c] for i in range(4)]
+            windows.append(window)
+
+    # Positive sloped diagonal windows
+    for r in range(rows - 3):
+        for c in range(cols - 3):
+            window = [board[r + i][c + i] for i in range(4)]
+            windows.append(window)
+
+    # Negative sloped diagonal windows
+    for r in range(rows - 3):
+        for c in range(cols - 3):
+            window = [board[r + 3 - i][c + i] for i in range(4)]
+            windows.append(window)
+
+    return windows
+
+
+def score_position(board, piece):
+    score = 0
+    windows = extract_windows(board)
+
+    for window in windows:
+        score += evaluate_block(window, piece)
+
+    # Additional strategies for controlling center and edges
+    center_column = COLS // 2
+    for row in range(ROWS):
+        if board[row][center_column] == piece:
+            score += 10  # Encourage control of the center column
+
+        if row == 0 or row == ROWS - 1:
+            for col in range(COLS):
+                if board[row][col] == piece:
+                    score += 5  # Encourage controlling edge positions
+
+    return score
+
+
+def is_terminal_node(board):
+    return Game_over(board, PLAYER_ONE_PIECE) or Game_over(board, AI_PLAYER_PIECE) or len(
+        get_valid_locations(board)) == 0
 
 def get_valid_locations(board):
     valid_locations = []
@@ -265,25 +334,69 @@ def evaluate_terminal(board):
     else:
         return 0
 
-def minimax(board, depth, maximizingplayer):
+
+def evaluate_depth_zero(board):
+    return score_position(board, AI_PLAYER_PIECE)
+
+
+def minimax(board, depth, alpha, beta, maximizingPlayer):
     valid_locations = get_valid_locations(board)
-    if depth == 0 or Game_over(board, AI_PLAYER_PIECE) or Game_over(board, PLAYER_ONE_PIECE):
-        return evaluate_terminal(board)
-    if maximizingplayer:
+    is_terminal = is_terminal_node(board)
+
+    if is_terminal:
+        return None, evaluate_terminal(board)
+    if depth == 0:
+        return None, evaluate_depth_zero(board)
+
+    if maximizingPlayer:
         value = MINUSINF
+        random.shuffle(valid_locations)
+        column = valid_locations[0]
         for col in valid_locations:
             row = get_next_open_row(board, col)
             b_copy = board.copy()
             add_piece(b_copy, row, col, AI_PLAYER_PIECE)
-            value = max(value, minimax(b_copy, depth - 1, False))
-        return value
-    else:
+            new_score = minimax(b_copy, depth - 1, alpha, beta, False)[1]
+
+            if new_score > value:
+                value, column = new_score, col
+
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+
+        return column, value
+
+    else:  # Minimizing player
         value = PLUSINF
+
+        random.shuffle(valid_locations)
+        column = valid_locations[0]
         for col in valid_locations:
             row = get_next_open_row(board, col)
             b_copy = board.copy()
             add_piece(b_copy, row, col, PLAYER_ONE_PIECE)
-            value = min(value, minimax(b_copy, depth - 1, True))
-        return value
+            new_score = minimax(b_copy, depth - 1, alpha, beta, True)[1]
+
+            if new_score < value:
+                value, column = new_score, col
+
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+
+        return column, value
+
+
+def main():
+
+
+    initialize_rows_cols()
+    board = create_board()
+    pygame.init()
+    screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
+    pygame.display.set_caption('Connect 4')
+    game_two_players(screen, board)
+
 if __name__ == '__main__':
     main()
