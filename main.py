@@ -100,14 +100,14 @@ def board_setup():
 
 
 def draw_border(screen, color):
-    # Define the border dimensions
+
     border_thickness = 5
-    border_color = color # Choose the color for the border
+    border_color = color
 
     # Top border
     pygame.draw.rect(screen, border_color, (0, 0, COLS * Piece_size, border_thickness))
 
-    # Bottom border (just above the text row)
+    # Bottom border
     pygame.draw.rect(screen, border_color, (0, (ROWS + 1) * Piece_size - border_thickness, COLS * Piece_size, border_thickness))
 
     # Left border
@@ -344,6 +344,7 @@ def is_terminal_node(board):
     return is_game_over(board, PLAYER_ONE_PIECE) or is_game_over(board, AI_PLAYER_PIECE) or len(
         get_valid_locations(board)) == 0
 
+
 def get_valid_locations(board):
     valid_locations = []
     for col in range(COLS):
@@ -413,7 +414,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 
         return column, value
 
-global CLOSED
+
 def game_vs_AI(screen, board, difficulty, first_player):
     depth = 5
     turn = AI_PLAYER
