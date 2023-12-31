@@ -14,4 +14,5 @@ OUTPUT: Interfata grafica cu tabla de 4 in a ROW. Dupà terminarea jocului se va
 mesaj corespunzator.
 
 
-![image](https://github.com/Oana-Florentina/4-in-a-Row/assets/121244115/c8f27dfb-6d62-4976-a5d5-94c172eae198)
+![image](https://github.com/Oana-Florentina/4-in-a-Row/assets/121244115/c9dfd52b-c1d7-40fd-9f64-61ccb6261daa)
+
