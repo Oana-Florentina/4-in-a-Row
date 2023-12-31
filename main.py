@@ -99,6 +99,26 @@ def board_setup():
     return screen
 
 
+def draw_border(screen, color):
+    # Define the border dimensions
+    border_thickness = 5
+    border_color = color # Choose the color for the border
+
+    # Top border
+    pygame.draw.rect(screen, border_color, (0, 0, COLS * Piece_size, border_thickness))
+
+    # Bottom border (just above the text row)
+    pygame.draw.rect(screen, border_color, (0, (ROWS + 1) * Piece_size - border_thickness, COLS * Piece_size, border_thickness))
+
+    # Left border
+    pygame.draw.rect(screen, border_color, (0, 0, border_thickness, (ROWS + 1) * Piece_size))
+
+    # Right border
+    pygame.draw.rect(screen, border_color, ((COLS * Piece_size) - border_thickness, 0, border_thickness, (ROWS + 1) * Piece_size))
+
+    pygame.display.update()
+
+
 def draw_board(screen, board):
 
     for col in range(COLS):
@@ -184,7 +204,7 @@ def game_two_players(screen, board):
     draw_board(screen, board)
 
     while not game_over:
-        for event in pygame.event.get():
+        for event in pygame.event.get() :
             if event.type == pygame.QUIT:
                 sys.exit(0)
             if is_tie(board):
@@ -206,7 +226,8 @@ def game_two_players(screen, board):
                         if is_game_over(board, PLAYER_ONE_PIECE):
                             print("PLAYER 1 WINS!")
                             game_over = True
-                        turn = PLAYER_TWO
+                        else:
+                            turn = PLAYER_TWO
 
                 else:
                     col = int(event.pos[0] / Piece_size)
@@ -217,22 +238,27 @@ def game_two_players(screen, board):
                         if is_game_over(board, PLAYER_TWO_PIECE):
                             print("PLAYER 2 WINS!")
                             game_over = True
-                        turn = PLAYER_ONE
+                        else:
+                            turn = PLAYER_ONE
 
                 print_board(board)
                 draw_board(screen, board)
                 pygame.display.update()
-
                 col = int(event.pos[0] / Piece_size)
-                draw_hover_piece(screen, col, turn)
-                pygame.display.update()
+
     if game_over:
         if is_game_over(board, PLAYER_ONE_PIECE):
             display_message(screen, "PLAYER 1 WINS!")
+            draw_border(screen, RED)
+
         elif is_game_over(board, PLAYER_TWO_PIECE):
             display_message(screen, "PLAYER 2 WINS!")
+            draw_border(screen, YELLOW)
+
         elif is_tie(board):
             display_message(screen, "IT'S TIE")
+            draw_border(screen, WHITE)
+
 
     # after 5 seconds close the game
     pygame.time.wait(5000)
@@ -427,12 +453,14 @@ def game_vs_AI(screen, board, difficulty, first_player):
                         print("PLAYER 1 WINS!")
                         game_over = True
                         break
+                    else:
+                        turn = AI_PLAYER
+
                     if is_tie(board):
                         game_over = True
                         print("TIE!")
                         break
 
-                    turn = AI_PLAYER
                     draw_board(screen, board)
                     pygame.display.update()
 
@@ -449,11 +477,12 @@ def game_vs_AI(screen, board, difficulty, first_player):
                         print("PLAYER 2 WINS!")
                         game_over = True
                         break
+                    else:
+                        turn = PLAYER_ONE
                     if is_tie(board):
                         game_over = True
                         print("tie!")
                         break
-                    turn = PLAYER_ONE
 
         draw_board(screen, board)
         pygame.display.update()
@@ -461,10 +490,16 @@ def game_vs_AI(screen, board, difficulty, first_player):
     if game_over:
         if is_game_over(board, PLAYER_ONE_PIECE):
             display_message(screen, "PLAYER 1 WINS!")
+            draw_border(screen, RED)
+
         elif is_game_over(board, AI_PLAYER_PIECE):
-            display_message(screen, "PLAYER 2 WINS!")
+            display_message(screen, "COMPUTER WINS!")
+            draw_border(screen, YELLOW)
+
         elif is_tie(board):
             display_message(screen, "IT'S TIE")
+            draw_border(screen, BLUE)
+
 
     # after 5 seconds close the game
     pygame.time.wait(5000)
@@ -494,6 +529,8 @@ def main():
         sys.exit(1)
 
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
+
+
     pygame.display.set_caption('Connect 4 - Made by Flory')
 
     if len(sys.argv) < 3:
