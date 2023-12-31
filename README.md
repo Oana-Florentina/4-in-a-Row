@@ -8,4 +8,6 @@ INPUT: 4inaROW.py <tip adversar» <celule_axa_x> «celule_axa_y> [firstPlayer]
 EX: 4inaROW.py computer 7 5 human
 OUTPUT: Interfata grafica cu tabla de 4 in a ROW. Dupà terminarea jocului se va afisa un
 mesaj corespunzator.
+
+
 ![image](https://github.com/Oana-Florentina/4-in-a-Row/assets/121244115/c8f27dfb-6d62-4976-a5d5-94c172eae198)
