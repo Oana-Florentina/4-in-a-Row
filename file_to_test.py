@@ -380,7 +380,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 
         return column, value
 
-
+global CLOSED
 def game_vs_AI(screen, board, difficulty, first_player):
     depth = 5
     turn = AI_PLAYER
@@ -401,6 +401,8 @@ def game_vs_AI(screen, board, difficulty, first_player):
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                CLOSED=True
+                pygame.quit()
                 sys.exit(0)
 
             if event.type == pygame.MOUSEMOTION and turn == PLAYER_ONE:
@@ -457,14 +459,25 @@ def game_vs_AI(screen, board, difficulty, first_player):
         elif is_tie(board):
             display_message(screen, "IT'S TIE")
 
-    # after 2 seconds close the game
-    pygame.time.wait(2000)
+    # after 5 seconds close the game
+    pygame.time.wait(5000)
     pygame.quit()
 
 
 
 
+def check_difficulty_is_valid(difficulty):
+    if difficulty == "easy" or difficulty == "medium" or difficulty == "hard":
+        return True
+    else:
+        return False
 
+
+def check_first_player_is_valid(first_player):
+    if first_player == "human" or first_player == "computer":
+        return True
+    else:
+        return False
 def main():
 
 
@@ -473,11 +486,31 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
     pygame.display.set_caption('Connect 4')
-    #game_two_players(screen, board)
 
+    opponent = sys.argv[1]
+    if len(sys.argv) < 5:
+        print("Invalid number of arguments. Usage: python main.py <opponent> <rows> <columns> <first_player> <difficulty>")
+        sys.exit(1)
+    if opponent == "human":
+        game_two_players(screen, board)
+    else:
+        if opponent == "computer":
+            difficulty = sys.argv[5]
+            first_player = sys.argv[4]
 
-    game_vs_AI(screen, board)
+            if not check_difficulty_is_valid(difficulty):
+                print("Invalid difficulty. Choose from 'easy', 'medium' or 'hard'.")
+                sys.exit(1)
+            if not check_first_player_is_valid(first_player):
+                print("Invalid first player. Choose from 'human' or 'computer'.")
+                sys.exit(1)
+            CLOSED = False
+            while True:
+                game_vs_AI(screen, board, difficulty, first_player)
 
+        else:
+            print("Invalid opponent. Choose from 'human' or 'computer'.")
+            sys.exit(1)
 
 if __name__ == '__main__':
     main()
