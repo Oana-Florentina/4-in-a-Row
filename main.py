@@ -45,6 +45,15 @@ PLAYING = True
 
 # Board configuration functions
 
+try:
+    opponent = sys.argv[1]
+    ROWS = int(sys.argv[2])
+    COLS = int(sys.argv[3])
+    print(ROWS)
+    print(COLS)
+except ValueError:
+    print("Rows and columns must be integers.")
+    sys.exit(1)
 
 
 def create_board():
@@ -470,61 +479,51 @@ def check_first_player_is_valid(first_player):
         return False
 
 
-try:
-    opponent = sys.argv[1]
-    ROWS = int(sys.argv[2])
-    COLS = int(sys.argv[3])
-    print(ROWS)
-    print(COLS)
-except ValueError:
-    print("Rows and columns must be integers.")
-    sys.exit(1)
-
-
 def main():
-
     board = create_board()
     pygame.init()
-    if ROWS < 4 or COLS < 4:
-        print("Rows and columns must be at least 4.")
+
+    if ROWS < 4 or COLS < 4 or ROWS > 10 or COLS > 10:
+        print("Rows and columns must be between 4 and 10.")
         sys.exit(1)
-    else:
-        if ROWS > 10 or COLS > 10:
-            print("Rows and columns must be at most 10.")
-            sys.exit(1)
+
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
     pygame.display.set_caption('Connect 4')
 
+    if len(sys.argv) < 3:
+        print("Invalid number of arguments.")
+        print("Usage: python main.py <opponent> <rows> <columns> [<first_player> <difficulty>]")
+        sys.exit(1)
+
     opponent = sys.argv[1]
 
-    if len(sys.argv) < 5 and opponent == "computer":
-        print("Invalid number of arguments. Usage: python main.py <opponent> <rows> <columns> <first_player> "
-              "<difficulty>")
-        sys.exit(1)
-    else:
-        if len(sys.argv) < 3 and opponent == "human":
-            print("Invalid number of arguments. Usage: python main.py <opponent> <rows> <columns>")
-            sys.exit(1)
     if opponent == "human":
-        game_two_players(screen, board)
-    else:
-        if opponent == "computer":
-            difficulty = sys.argv[5]
-            first_player = sys.argv[4]
-
-            if not check_difficulty_is_valid(difficulty):
-                print("Invalid difficulty. Choose from 'easy', 'medium' or 'hard'.")
-                sys.exit(1)
-            if not check_first_player_is_valid(first_player):
-                print("Invalid first player. Choose from 'human' or 'computer'.")
-                sys.exit(1)
-            CLOSED = False
-            while True:
-                game_vs_AI(screen, board, difficulty, first_player)
-
-        else:
-            print("Invalid opponent. Choose from 'human' or 'computer'.")
+        if len(sys.argv) != 4:
+            print("Invalid number of arguments for player vs. player game.")
+            print("Usage: python main.py human <rows> <columns>")
             sys.exit(1)
+        game_two_players(screen, board)
+    elif opponent == "computer":
+        if len(sys.argv) != 6:
+            print("Invalid number of arguments for player vs. AI game.")
+            print("Usage: python main.py computer <rows> <columns> <first_player> <difficulty>")
+            sys.exit(1)
+
+        difficulty = sys.argv[5]
+        first_player = sys.argv[4]
+
+        if not check_difficulty_is_valid(difficulty):
+            print("Invalid difficulty. Choose from 'easy', 'medium', or 'hard'.")
+            sys.exit(1)
+        if not check_first_player_is_valid(first_player):
+            print("Invalid first player. Choose from 'human' or 'computer'.")
+            sys.exit(1)
+
+        while True:
+            game_vs_AI(screen, board, difficulty, first_player)
+    else:
+        print("Invalid opponent. Choose from 'human' or 'computer'.")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
