@@ -384,10 +384,11 @@ global CLOSED
 def game_vs_AI(screen, board, difficulty, first_player):
     depth = 5
     turn = AI_PLAYER
+    random_move = False
     if difficulty == "easy":
-        depth = 0
+        random_move = True
     elif difficulty == "medium":
-        depth = 2
+        depth = 1
     elif difficulty == "hard":
         depth = 5
     if first_player == "human":
@@ -425,16 +426,15 @@ def game_vs_AI(screen, board, difficulty, first_player):
                         print("TIE!")
                         break
 
-
                     turn = AI_PLAYER
                     draw_board(screen, board)
                     pygame.display.update()
 
-
-
             if turn == AI_PLAYER:
-                col = minimax(board, depth, -math.inf, math.inf, True)[0]
-
+                if not random_move:
+                    col = minimax(board, depth, -math.inf, math.inf, True)[0]
+                else:
+                    col = random.randint(0, COLS - 1) # Random move if the difficulty is easy
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     pygame.time.wait(500)
