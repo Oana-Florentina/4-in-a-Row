@@ -204,7 +204,7 @@ def game_two_players(screen, board):
     draw_board(screen, board)
 
     while not game_over:
-        for event in pygame.event.get() :
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit(0)
             if is_tie(board):
@@ -243,8 +243,9 @@ def game_two_players(screen, board):
 
                 print_board(board)
                 draw_board(screen, board)
-                pygame.display.update()
                 col = int(event.pos[0] / Piece_size)
+                draw_hover_piece(screen, col, turn)
+                pygame.display.update()
 
     if game_over:
         if is_game_over(board, PLAYER_ONE_PIECE):
