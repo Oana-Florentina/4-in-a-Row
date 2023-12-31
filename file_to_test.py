@@ -10,15 +10,7 @@ import sys
 
 global ROWS
 global COLS
-try:
-    opponent = sys.argv[1]
-    ROWS = int(sys.argv[2])
-    COLS = int(sys.argv[3])
-    print(ROWS)
-    print(COLS)
-except ValueError:
-    print("Rows and columns must be integers.")
-    sys.exit(1)
+
 
 PLUSINF = math.inf
 MINUSINF = -math.inf
@@ -402,7 +394,6 @@ def game_vs_AI(screen, board, difficulty, first_player):
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                CLOSED=True
                 pygame.quit()
                 sys.exit(0)
 
@@ -434,7 +425,7 @@ def game_vs_AI(screen, board, difficulty, first_player):
                 if not random_move:
                     col = minimax(board, depth, -math.inf, math.inf, True)[0]
                 else:
-                    col = random.randint(0, COLS - 1) # Random move if the difficulty is easy
+                    col = random.randint(0, COLS - 1)  # Random move cause how else can I make the game easy?
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     pygame.time.wait(500)
@@ -451,6 +442,7 @@ def game_vs_AI(screen, board, difficulty, first_player):
 
         draw_board(screen, board)
         pygame.display.update()
+
     if game_over:
         if is_game_over(board, PLAYER_ONE_PIECE):
             display_message(screen, "PLAYER 1 WINS!")
@@ -462,8 +454,6 @@ def game_vs_AI(screen, board, difficulty, first_player):
     # after 5 seconds close the game
     pygame.time.wait(5000)
     pygame.quit()
-
-
 
 
 def check_difficulty_is_valid(difficulty):
@@ -478,19 +468,43 @@ def check_first_player_is_valid(first_player):
         return True
     else:
         return False
+
+
+try:
+    opponent = sys.argv[1]
+    ROWS = int(sys.argv[2])
+    COLS = int(sys.argv[3])
+    print(ROWS)
+    print(COLS)
+except ValueError:
+    print("Rows and columns must be integers.")
+    sys.exit(1)
+
+
 def main():
-
-
 
     board = create_board()
     pygame.init()
+    if ROWS < 4 or COLS < 4:
+        print("Rows and columns must be at least 4.")
+        sys.exit(1)
+    else:
+        if ROWS > 10 or COLS > 10:
+            print("Rows and columns must be at most 10.")
+            sys.exit(1)
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
     pygame.display.set_caption('Connect 4')
 
     opponent = sys.argv[1]
-    if len(sys.argv) < 5:
-        print("Invalid number of arguments. Usage: python main.py <opponent> <rows> <columns> <first_player> <difficulty>")
+
+    if len(sys.argv) < 5 and opponent == "computer":
+        print("Invalid number of arguments. Usage: python main.py <opponent> <rows> <columns> <first_player> "
+              "<difficulty>")
         sys.exit(1)
+    else:
+        if len(sys.argv) < 3 and opponent == "human":
+            print("Invalid number of arguments. Usage: python main.py <opponent> <rows> <columns>")
+            sys.exit(1)
     if opponent == "human":
         game_two_players(screen, board)
     else:
@@ -511,6 +525,7 @@ def main():
         else:
             print("Invalid opponent. Choose from 'human' or 'computer'.")
             sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
