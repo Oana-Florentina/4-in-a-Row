@@ -19,8 +19,10 @@ try:
 except ValueError:
     print("Rows and columns must be integers.")
     sys.exit(1)
+
 PLUSINF = math.inf
 MINUSINF = -math.inf
+
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -51,15 +53,6 @@ PLAYING = True
 
 # Board configuration functions
 
-def initialize_rows_cols():
-    try:
-       # ROWS= int(sys.argv[2])
-       # COLS= int(sys.argv[3])
-        ROWS=7
-        COLS=6
-    except ValueError:
-        print("Rows and columns must be integers.")
-        sys.exit(1)
 
 
 def create_board():
@@ -138,7 +131,7 @@ def draw_hover_piece(screen, col, turn):
 
 # Main game functions player vs player
 
-def Game_over(board, piece):
+def is_game_over(board, piece):
     # Check horizontal locations for win
     for col in range(COLS - 3):
         for row in range(ROWS):
@@ -180,7 +173,7 @@ def display_message(screen, message):
 
 def game_two_players(screen, board):
     turn = PLAYER_ONE
-    game_over = Game_over(board, PLAYER_ONE_PIECE)
+    game_over = is_game_over(board, PLAYER_ONE_PIECE)
     draw_board(screen, board)
 
     while not game_over:
@@ -203,7 +196,7 @@ def game_two_players(screen, board):
                     if is_valid_location(board, col):
                         row = get_next_open_row(board, col)
                         add_piece(board, row, col, PLAYER_ONE_PIECE)
-                        if Game_over(board, PLAYER_ONE_PIECE):
+                        if is_game_over(board, PLAYER_ONE_PIECE):
                             print("PLAYER 1 WINS!")
                             game_over = True
                         turn = PLAYER_TWO
@@ -214,7 +207,7 @@ def game_two_players(screen, board):
                     if is_valid_location(board, col):
                         row = get_next_open_row(board, col)
                         add_piece(board, row, col, PLAYER_TWO_PIECE)
-                        if Game_over(board, PLAYER_TWO_PIECE):
+                        if is_game_over(board, PLAYER_TWO_PIECE):
                             print("PLAYER 2 WINS!")
                             game_over = True
                         turn = PLAYER_ONE
@@ -227,9 +220,9 @@ def game_two_players(screen, board):
                 draw_hover_piece(screen, col, turn)
                 pygame.display.update()
     if game_over:
-        if Game_over(board, PLAYER_ONE_PIECE):
+        if is_game_over(board, PLAYER_ONE_PIECE):
             display_message(screen, "PLAYER 1 WINS!")
-        elif Game_over(board, PLAYER_TWO_PIECE):
+        elif is_game_over(board, PLAYER_TWO_PIECE):
             display_message(screen, "PLAYER 2 WINS!")
         elif is_tie(board):
             display_message(screen, "IT'S TIE")
@@ -262,7 +255,7 @@ def evaluate_block(window, piece):
     return score
 
 
-def extract_windows(board):
+def extract_blocks(board):
     windows = []
     rows, cols = ROWS, COLS
 
@@ -293,11 +286,11 @@ def extract_windows(board):
     return windows
 
 
-def score_position(board, piece):
+def calculate_score(board, piece):
     score = 0
-    windows = extract_windows(board)
+    blocks = extract_blocks(board)
 
-    for window in windows:
+    for window in blocks:
         score += evaluate_block(window, piece)
 
     # Additional strategies for controlling center and edges
@@ -315,7 +308,7 @@ def score_position(board, piece):
 
 
 def is_terminal_node(board):
-    return Game_over(board, PLAYER_ONE_PIECE) or Game_over(board, AI_PLAYER_PIECE) or len(
+    return is_game_over(board, PLAYER_ONE_PIECE) or is_game_over(board, AI_PLAYER_PIECE) or len(
         get_valid_locations(board)) == 0
 
 def get_valid_locations(board):
@@ -327,16 +320,16 @@ def get_valid_locations(board):
 
 
 def evaluate_terminal(board):
-    if Game_over(board, AI_PLAYER_PIECE):
+    if is_game_over(board, AI_PLAYER_PIECE):
         return 100000000000000
-    elif Game_over(board, PLAYER_ONE_PIECE):
+    elif is_game_over(board, PLAYER_ONE_PIECE):
         return -10000000000000
     else:
         return 0
 
 
 def evaluate_depth_zero(board):
-    return score_position(board, AI_PLAYER_PIECE)
+    return calculate_score(board, AI_PLAYER_PIECE)
 
 
 def minimax(board, depth, alpha, beta, maximizingPlayer):
@@ -354,9 +347,9 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
         column = valid_locations[0]
         for col in valid_locations:
             row = get_next_open_row(board, col)
-            b_copy = board.copy()
-            add_piece(b_copy, row, col, AI_PLAYER_PIECE)
-            new_score = minimax(b_copy, depth - 1, alpha, beta, False)[1]
+            board_copy = board.copy()
+            add_piece(board_copy, row, col, AI_PLAYER_PIECE)
+            new_score = minimax(board_copy, depth - 1, alpha, beta, False)[1]
 
             if new_score > value:
                 value, column = new_score, col
@@ -374,9 +367,9 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
         column = valid_locations[0]
         for col in valid_locations:
             row = get_next_open_row(board, col)
-            b_copy = board.copy()
-            add_piece(b_copy, row, col, PLAYER_ONE_PIECE)
-            new_score = minimax(b_copy, depth - 1, alpha, beta, True)[1]
+            board_copy = board.copy()
+            add_piece(board_copy, row, col, PLAYER_ONE_PIECE)
+            new_score = minimax(board_copy, depth - 1, alpha, beta, True)[1]
 
             if new_score < value:
                 value, column = new_score, col
@@ -402,7 +395,7 @@ def game_vs_AI(screen, board, difficulty, first_player):
     else:
         turn = AI_PLAYER
 
-    game_over = Game_over(board, PLAYER_ONE_PIECE)
+    game_over = is_game_over(board, PLAYER_ONE_PIECE)
     draw_board(screen, board)
 
     while not game_over:
@@ -421,7 +414,7 @@ def game_vs_AI(screen, board, difficulty, first_player):
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     add_piece(board, row, col, PLAYER_ONE_PIECE)
-                    if Game_over(board, PLAYER_ONE_PIECE):
+                    if is_game_over(board, PLAYER_ONE_PIECE):
                         print("PLAYER 1 WINS!")
                         game_over = True
                         break
@@ -444,7 +437,7 @@ def game_vs_AI(screen, board, difficulty, first_player):
                     row = get_next_open_row(board, col)
                     pygame.time.wait(500)
                     add_piece(board, row, col, AI_PLAYER_PIECE)
-                    if Game_over(board, AI_PLAYER_PIECE):
+                    if is_game_over(board, AI_PLAYER_PIECE):
                         print("PLAYER 2 WINS!")
                         game_over = True
                         break
@@ -457,9 +450,9 @@ def game_vs_AI(screen, board, difficulty, first_player):
         draw_board(screen, board)
         pygame.display.update()
     if game_over:
-        if Game_over(board, PLAYER_ONE_PIECE):
+        if is_game_over(board, PLAYER_ONE_PIECE):
             display_message(screen, "PLAYER 1 WINS!")
-        elif Game_over(board, AI_PLAYER_PIECE):
+        elif is_game_over(board, AI_PLAYER_PIECE):
             display_message(screen, "PLAYER 2 WINS!")
         elif is_tie(board):
             display_message(screen, "IT'S TIE")
@@ -475,15 +468,15 @@ def game_vs_AI(screen, board, difficulty, first_player):
 def main():
 
 
-    initialize_rows_cols()
+
     board = create_board()
     pygame.init()
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
     pygame.display.set_caption('Connect 4')
-    game_two_players(screen, board)
+    #game_two_players(screen, board)
 
 
-    # game_vs_AI(screen, board)
+    game_vs_AI(screen, board)
 
 
 if __name__ == '__main__':
