@@ -21,6 +21,7 @@ WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
+DARK_GRAY = (169, 169, 169)
 # ----------------
 
 # Players
@@ -91,18 +92,21 @@ def is_tie(board):
 
 def board_setup():
     pygame.init()
-    pygame.display.set_caption('Connect 4')
-    screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
+    screen_width = COLS * Piece_size
+    screen_height = (ROWS + 2) * Piece_size  # Increased by one row for the text and one for the board shift
+    screen = pygame.display.set_mode((screen_width, screen_height))
+
     return screen
 
 
 def draw_board(screen, board):
-    height = (ROWS + 1) * Piece_size
+
     for col in range(COLS):
         for row in range(ROWS):
             x = col * Piece_size
             y = (ROWS - row - 1) * Piece_size + Piece_size
             pygame.draw.rect(screen, BLUE, (x, y, Piece_size, Piece_size))
+
             circle_x = x + int(Piece_size / 2)
             circle_y = y + int(Piece_size / 2)
             pygame.draw.circle(screen, BLACK, (circle_x, circle_y), RADIUS)
@@ -116,13 +120,15 @@ def draw_board(screen, board):
                 continue
 
             pygame.draw.circle(screen, piece_color, (circle_x, circle_y), RADIUS - 5)  # Smaller circle
+
+
     pygame.display.update()
 
 
 def draw_hover_piece(screen, col, turn):
     mouse_x = col * Piece_size + int(Piece_size / 2)
 
-    pygame.draw.rect(screen, BLACK, (0, 0, COLS * Piece_size, Piece_size))
+    pygame.draw.rect(screen, DARK_GRAY, (0, 0, COLS * Piece_size, Piece_size))
 
     if turn == PLAYER_ONE:
         pygame.draw.circle(screen, RED, (mouse_x, int(Piece_size / 2)), RADIUS)
@@ -166,7 +172,7 @@ def is_game_over(board, piece):
 
 def display_message(screen, message):
     font = pygame.font.Font(None, 36)
-    text = font.render(message, True, WHITE)
+    text = font.render(message, True, BLACK)
     text_rect = text.get_rect(center=(COLS * Piece_size // 2, Piece_size // 2))
     screen.blit(text, text_rect)
     pygame.display.update()
@@ -488,7 +494,7 @@ def main():
         sys.exit(1)
 
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
-    pygame.display.set_caption('Connect 4')
+    pygame.display.set_caption('Connect 4 - Made by Flory')
 
     if len(sys.argv) < 3:
         print("Invalid number of arguments.")
