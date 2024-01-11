@@ -13,6 +13,8 @@ EX: 4inaROW.py computer 7 5 human
 OUTPUT: Interfata grafica cu tabla de 4 in a ROW. Dupà terminarea jocului se va afisa un
 mesaj corespunzator.
 
+BONUS:
+Această implementare oferă posibilitatea de a juca cu oricare număr de piese consecutive (X în șir), nu doar cu 4, ca în jocul clasic "4 in a row".
 
 ![image](https://github.com/Oana-Florentina/4-in-a-Row/assets/121244115/c9dfd52b-c1d7-40fd-9f64-61ccb6261daa)
 
