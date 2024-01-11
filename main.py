@@ -10,7 +10,8 @@ import sys
 
 global ROWS
 global COLS
-
+global X
+X = 5
 
 PLUSINF = math.inf
 MINUSINF = -math.inf
@@ -40,7 +41,7 @@ AI_PLAYER_PIECE = 2
 Piece_size = 100
 RADIUS = int(Piece_size / 2 - 5)
 global PLAYING
-PLAYING = True
+
 # ----------------
 
 
@@ -220,36 +221,45 @@ def draw_hover_piece(screen, col, turn):
 def is_game_over(board, piece):
     """
     Checks if the specified piece has won the game.
+    Someone wins if they have X pieces in a row, column, or diagonal.
     :param board:
     :param piece: the piece to check for a win.
     :return: true if the piece has won, false otherwise.
     """
+    def check_line(line):
+        """
+        Helper function to check if there are X consecutive pieces in a line.
+        """
+        count = 0
+        for cell in line:
+            if cell == piece:
+                count += 1
+                if count == X:
+                    return True
+            else:
+                count = 0
+        return False
+
     # Check horizontal locations for win
-    for col in range(COLS - 3):
-        for row in range(ROWS):
-            if board[row][col] == piece and board[row][col + 1] == piece and board[row][col + 2] == piece and \
-                    board[row][col + 3] == piece:
-                return True
+    for r in range(ROWS):
+        if check_line(board[r]):
+            return True
 
     # Check vertical locations for win
-    for col in range(COLS):
-        for row in range(ROWS - 3):
-            if board[row][col] == piece and board[row + 1][col] == piece and board[row + 2][col] == piece and \
-                    board[row + 3][col] == piece:
+    for c in range(COLS):
+        if check_line([board[r][c] for r in range(ROWS)]):
+            return True
+
+    # Check / diagonal locations for win
+    for r in range(ROWS - X + 1):
+        for c in range(COLS - X + 1):
+            if check_line([board[r + i][c + i] for i in range(X)]):
                 return True
 
-    # Check positively sloped diaganols
-    for col in range(COLS - 3):
-        for row in range(ROWS - 3):
-            if board[row][col] == piece and board[row + 1][col + 1] == piece and board[row + 2][col + 2] == piece and \
-                    board[row + 3][col + 3] == piece:
-                return True
-
-    # Check negatively sloped diaganols
-    for col in range(COLS - 3):
-        for row in range(3, ROWS):
-            if board[row][col] == piece and board[row - 1][col + 1] == piece and board[row - 2][col + 2] == piece and \
-                    board[row - 3][col + 3] == piece:
+    # Check \ diagonal locations for win
+    for r in range(X - 1, ROWS):
+        for c in range(COLS - X + 1):
+            if check_line([board[r - i][c + i] for i in range(X)]):
                 return True
 
     return False
@@ -348,9 +358,9 @@ def game_two_players(screen, board):
 
 def evaluate_block(window, piece):
     """
-    Evaluates a block of 4 pieces.
+    Evaluates a block of X pieces.
     Used to determine the score of a window.
-    :param window: A block of 4 pieces that is being evaluated. Can be a row, column, or diagonal.
+    :param window: A block of X pieces that is being evaluated. Can be a row, column, or diagonal.
     :param piece: The piece of the player whose score is being calculated.
     :return: the score of the block.
     """
@@ -359,15 +369,17 @@ def evaluate_block(window, piece):
     score = 0
     opp_piece = PLAYER_ONE_PIECE if piece == AI_PLAYER_PIECE else AI_PLAYER_PIECE
 
-    if piece_count == 4:
+    # Calculate score for consecutive pieces
+    if piece_count >= X:
         score += 100
-    elif piece_count == 3 and empty_count == 1:
+    elif piece_count == X - 1 and empty_count == 1:
         score += 50
-    elif piece_count == 2 and empty_count == 2:
+    elif piece_count == X - 2 and empty_count == 2:
         score += 10
 
+    # Calculate score for blocking opponent's pieces
     opposite_count = np.count_nonzero(window == opp_piece)
-    if opposite_count == 3 and empty_count == 1:
+    if opposite_count >= X - 1 and empty_count == 1:
         score -= 50
 
     return score
@@ -385,26 +397,26 @@ def extract_blocks(board):
 
     # Horizontal windows
     for r in range(rows):
-        for c in range(cols - 3):
-            window = board[r][c:c + 4]
+        for c in range(cols - X + 1):
+            window = board[r][c:c + X]
             windows.append(window)
 
     # Vertical windows
     for c in range(cols):
-        for r in range(rows - 3):
-            window = [board[r + i][c] for i in range(4)]
+        for r in range(rows - X + 1):
+            window = [board[r + i][c] for i in range(X)]
             windows.append(window)
 
     # / diagonal windows
-    for r in range(rows - 3):
-        for c in range(cols - 3):
-            window = [board[r + i][c + i] for i in range(4)]
+    for r in range(rows - X + 1):
+        for c in range(cols - X + 1):
+            window = [board[r + i][c + i] for i in range(X)]
             windows.append(window)
 
     # \ diagonal windows
-    for r in range(rows - 3):
-        for c in range(cols - 3):
-            window = [board[r + 3 - i][c + i] for i in range(4)]
+    for r in range(rows - X + 1):
+        for c in range(cols - X + 1):
+            window = [board[r + X - 1 - i][c + i] for i in range(X)]
             windows.append(window)
 
     return windows
@@ -435,7 +447,6 @@ def calculate_score(board, piece):
                     score += 5  # Encourage controlling edge positions
 
     return score
-
 
 def is_terminal_node(board):
     """
@@ -612,8 +623,9 @@ def game_vs_AI(screen, board, difficulty, first_player):
             if turn == AI_PLAYER:
                 if not random_move:
                     col = minimax(board, depth, MINUSINF, PLUSINF, True)[0]
+                    col = minimax(board, depth, MINUSINF, PLUSINF, True)[0]
                 else:
-                    col = random.randint(0, COLS - 1)  # Random move cause how else can I make the game easy?
+                    col = random.randint(0, COLS - 1)  # Random move cause how else can I make the game easy
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     pygame.time.wait(500)
