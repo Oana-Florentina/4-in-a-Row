@@ -11,7 +11,6 @@ import sys
 global ROWS
 global COLS
 global X
-X = 5
 
 PLUSINF = math.inf
 MINUSINF = -math.inf
@@ -50,6 +49,7 @@ try:
     opponent = sys.argv[1]
     ROWS = int(sys.argv[2])
     COLS = int(sys.argv[3])
+    X = int(sys.argv[4])
     print(ROWS)
     print(COLS)
 except ValueError:
@@ -699,15 +699,17 @@ def main():
     # Argument validation
     # -------------------
 
-    if ROWS < 4 or COLS < 4 or ROWS > 10 or COLS > 10:
-        print("Rows and columns must be between 4 and 10.")
+    if ROWS < 4 or COLS < 4 or ROWS > 10 or COLS > 10 or X < 3 or X > 6:
+        print("Rows and columns must be between 4 and 10, X must be between 3 and 6.")
         sys.exit(1)
-
+    if X > ROWS and X > COLS:
+        print("X must be smaller than the number of rows and columns.")
+        sys.exit(1)
     screen = pygame.display.set_mode((COLS * Piece_size, (ROWS + 1) * Piece_size))
 
-    pygame.display.set_caption('Connect 4 - Made by Flory')
+    pygame.display.set_caption('Connect X - Made by Flory')
 
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 5:
         print("Invalid number of arguments.")
         print("Usage: python main.py <opponent> <rows> <columns> [<first_player> <difficulty>]")
         sys.exit(1)
@@ -715,19 +717,19 @@ def main():
     opponent = sys.argv[1]
 
     if opponent == "human":
-        if len(sys.argv) != 4:
+        if len(sys.argv) != 5:
             print("Invalid number of arguments for player vs. player game.")
-            print("Usage: python main.py human <rows> <columns>")
+            print("Usage: python main.py human <rows> <columns> <X>")
             sys.exit(1)
         game_two_players(screen, board)
     elif opponent == "computer":
-        if len(sys.argv) != 6:
+        if len(sys.argv) != 7:
             print("Invalid number of arguments for player vs. AI game.")
-            print("Usage: python main.py computer <rows> <columns> <first_player> <difficulty>")
+            print("Usage: python main.py computer <rows> <columns> <first_player> <difficulty> <X>")
             sys.exit(1)
 
-        difficulty = sys.argv[5]
-        first_player = sys.argv[4]
+        difficulty = sys.argv[6]
+        first_player = sys.argv[5]
 
         if not check_difficulty_is_valid(difficulty):
             print("Invalid difficulty. Choose from 'easy', 'medium', or 'hard'.")
@@ -741,6 +743,7 @@ def main():
     else:
         print("Invalid opponent. Choose from 'human' or 'computer'.")
         sys.exit(1)
+
 
 # Run the game
 if __name__ == '__main__':
